@@ -3,7 +3,11 @@ on:
   push:
     branches:
     - master
+    paths:
+    - '18.4.0'
   pull_request:
+    paths:
+    - '18.4.0'
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -12,4 +16,4 @@ jobs:
     - name: Download Installation Media
       run: aws s3 cp s3://software.redpillanalytics.io/oracle/xe/18.4.0.0.0/oracle-database-xe-18c-1.0-1.x86_64.rpm ./18.4.0/.
     - name: Build and Publish Image
-      run: ./docker-publish.sh ${{ secrets.DOCKER_USERNAME }} ${{ secrets.DOCKER_PASSWORD }}
+      run: ./docker-publish -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }} -d 18.4.0
