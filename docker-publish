@@ -13,7 +13,7 @@ BRANCH=`echo $GITHUB_REF | sed -e "s/refs\/heads\///g"`
 # if this is a PR, then set BRANCH to the MERGING branch
 if [ $GITHUB_HEAD_REF ] 
 then
-  BRANCH = $GITHUB_HEAD_REF
+  BRANCH=$GITHUB_HEAD_REF
 fi
 
 # capture the GIT_TAG or NULL
