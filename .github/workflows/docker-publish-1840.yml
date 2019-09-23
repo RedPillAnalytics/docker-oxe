@@ -4,10 +4,12 @@ on:
     branches:
     - master
     paths:
-    - '18.4.0'
+    - '*'
+    - '18.4.0/*'
   pull_request:
     paths:
-    - '18.4.0'
+    - '*'
+    - '18.4.0/*'
 jobs:
   build:
     runs-on: ubuntu-latest
