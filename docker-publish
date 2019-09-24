@@ -47,8 +47,8 @@ while getopts ":d:u:p:r:t:i:sh" opt; do
       PASSWORD=$OPTARG;;
     r ) # password
       REGISTRY=$OPTARG;;
-    s ) # password
-      SNAPSHOT=true;;
+    s ) # sha
+      SHA=true;;
     t ) # tag
       TAG=$OPTARG;;
     i ) # image
@@ -62,14 +62,20 @@ done
 
 DOCKERNAME="${IMAGE}:${TAG}"
 
+if [ -z $USERNAME ] || [ -z $PASSWORD ]
+then
+  echo "Username (-u) or Password (-p) was not specified."
+  exit 1
+fi
+
 docker login -u ${USERNAME} -p ${PASSWORD}
 
-# go ahead and build and create both tags. Doesn't cost anything
-docker build -t ${DOCKERNAME} $DIRECTORY
-docker push ${DOCKERNAME}
+# build and tag the known version
+docker build -t $DOCKERNAME $DIRECTORY
+docker push $DOCKERNAME
 
-# if either snapshot or a PR, then push the SHA tag
-if [ "$SNAPSHOT" ] && [ "$GITHUB_SHA" ]
+# if requested, and we know the SHA, then build a SHA version
+if [ "$SHA" ] && [ "$GITHUB_SHA" ]
 then
   DOCKERSHA="${IMAGE}:${GITHUB_SHA}"
   docker build -t $DOCKERSHA $DIRECTORY
