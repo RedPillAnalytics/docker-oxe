@@ -4,16 +4,21 @@ on:
     branches:
     - master
     paths:
-    - '18.4.0'
+    - '*'
+    - '18.4.0/*'
   pull_request:
     paths:
-    - '18.4.0'
+    - '*'
+    - '18.4.0/*'
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@master
     - name: Download Installation Media
-      run: aws s3 cp s3://software.redpillanalytics.io/oracle/xe/18.4.0.0.0/oracle-database-xe-18c-1.0-1.x86_64.rpm ./18.4.0/.
+      env:
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      run: aws s3 cp s3://software.redpillanalytics.io/oracle/xe/18.4.0.0.0/oracle-database-xe-18c-1.0-1.x86_64.rpm ./18.4.0/. --quiet
     - name: Build and Publish Image
       run: ./docker-publish -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }} -d 18.4.0
