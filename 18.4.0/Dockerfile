@@ -39,8 +39,7 @@ ENV ORACLE_BASE=/opt/oracle \
     CHECK_DB_FILE="checkDBStatus.sh" \
     INSTALL_DIR="$HOME/install" \
     ORACLE_DOCKER_INSTALL="true" \
-    NLS_LANG=AMERICAN_AMERICA.AL32UTF8 \
-    CUSTOM_SQL="custom.zip"
+    NLS_LANG=AMERICAN_AMERICA.AL32UTF8
 
 # Use second ENV so that variable get substituted
 ENV PATH=$ORACLE_HOME/bin:$PATH
@@ -63,7 +62,7 @@ RUN cd $INSTALL_DIR && \
 FROM base AS builder
 
 # Copy DB install file
-COPY $INSTALL_FILE_1 $CUSTOM_SQL $INSTALL_DIR/
+COPY $INSTALL_FILE_1 $INSTALL_DIR/
 
 # Install DB software rpm
 RUN cd $INSTALL_DIR && \
@@ -137,7 +136,6 @@ RUN $ORACLE_BASE/oraInventory/orainstRoot.sh && \
     mv $INSTALL_DIR/$PWD_FILE $ORACLE_BASE/ && \
     mv $INSTALL_DIR/$CHECK_DB_FILE $ORACLE_BASE/ && \
     mv $INSTALL_DIR/$CONF_FILE /etc/sysconfig/ && \
-    unzip $INSTALL_DIR/$CUSTOM_SQL -d $ORACLE_BASE/scripts/setup && \
     ln -s $ORACLE_BASE/$PWD_FILE / && \
     cd $HOME && \
     rm -rf $INSTALL_DIR && \

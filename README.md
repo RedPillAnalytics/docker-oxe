@@ -1,6 +1,9 @@
 Optimized Oracle XE 18c on Docker
 =====
+Changes: 3rd May 2019: Docker image more optimized from 5.41 GB to 4.02 GB
+
 Build a Docker image containing Oracle XE 18c with optimized size (4.02 GB instead of 8.7 GB) including Archivelog Mode and Flashback
+
 
 ## Oracle XE 18c Software
 [Download Oracle XE 18c](https://www.oracle.com/technetwork/database/database-technologies/express-edition/downloads/index.html) `.rpm` file and drop it inside folder `18.4.0`.
@@ -102,10 +105,3 @@ In case you want to execute the RMAN Backup job from crontab replace `-it` with 
 To download and run Oracle Database, regardless whether inside or outside a Docker container, you must download the binaries from the Oracle website and accept the license indicated at that page.
 
 All scripts and files hosted in this project and GitHub repository required to build the Docker images are, unless otherwise noted, released under [UPL 1.0](https://oss.oracle.com/licenses/upl/) license.
-
-## GitHub Actions
-Images are built with GitHub Actions. The following Github *secrets* are used as part of the build and publish process:
-
-**DOCKER_USER**: Used for loging into DockerHub.
-
-**DOCKER_PASSWORD**: Used for loging into DockerHub.
