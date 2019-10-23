@@ -3,7 +3,7 @@ steps:
   args:
     - 'cp'
     - 'gs://software.redpillanalytics.io/database/oracle-database-xe-18c-1.0-1.x86_64.rpm'
-    - '12.2.1.4.0'
+    - '18.4.0'
   id: copy-database
 - name: 'gcr.io/kaniko-project/executor:latest'
   args:
