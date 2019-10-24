@@ -1,7 +1,5 @@
 FROM oraclelinux:7-slim as base
 
-LABEL maintainer="dirk.nachbar@trivadis.com"
-
 ENV ORACLE_BASE=/opt/oracle \
     ORACLE_HOME=/opt/oracle/product/18c/dbhomeXE \
     ORACLE_SID=XE \
@@ -18,13 +16,13 @@ ENV PATH=$ORACLE_HOME/bin:$PATH
 
 COPY $RUN_FILE $PWD_FILE $CHECK_DB_FILE $INSTALL_FILE_1 $CONF_FILE $INSTALL_DIR/
 
-RUN cd $INSTALL_DIR && \
-    yum -y install unzip.x86_64 oracle-database-preinstall-18c file openssl && \
+WORKDIR $INSTALL_DIR
+
+RUN yum -y install unzip.x86_64 oracle-database-preinstall-18c file openssl && \
     rm -rf /var/cache/yum
 
 # Install DB software rpm
-RUN cd $INSTALL_DIR && \
-    yum -y install $INSTALL_FILE_1 && \
+RUN yum -y install $INSTALL_FILE_1 && \
     rm -rf /var/cache/yum && \
     rm -f $INSTALL_FILE_1 && \
     rm -rf $ORACLE_HOME/demo && \
@@ -71,6 +69,8 @@ RUN cd $INSTALL_DIR && \
     strip --remove-section=.comment $ORACLE_HOME/bin/rman && \
     strip --remove-section=.comment $ORACLE_HOME/bin/tnslsnr
 
+WORKDIR $HOME
+
 RUN $ORACLE_BASE/oraInventory/orainstRoot.sh && \
     $ORACLE_HOME/root.sh && \
     mkdir -p $ORACLE_BASE/scripts/setup && \
@@ -83,7 +83,6 @@ RUN $ORACLE_BASE/oraInventory/orainstRoot.sh && \
     mv $INSTALL_DIR/$CHECK_DB_FILE $ORACLE_BASE/ && \
     mv $INSTALL_DIR/$CONF_FILE /etc/sysconfig/ && \
     ln -s $ORACLE_BASE/$PWD_FILE / && \
-    cd $HOME && \
     rm -rf $INSTALL_DIR && \
     target_txt=$(cat /etc/security/limits.d/oracle-database-preinstall-18c.conf | grep -e 'oracle *hard *memlock*') && \
     sed -i "/^$target_txt/ c#$target_txt" /etc/security/limits.d/oracle-database-preinstall-18c.conf && \
