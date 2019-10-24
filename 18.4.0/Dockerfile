@@ -1,34 +1,7 @@
-# LICENSE UPL 1.0
-#
-# Copyright (c) 1982-2018 Oracle and/or its affiliates. All rights reserved.
-#
-# ORACLE DOCKERFILES PROJECT
-# --------------------------
-# This is the Dockerfile for Oracle Database 18c Express Edition
-# 
-# REQUIRED FILES TO BUILD THIS IMAGE
-# ----------------------------------
-# (1) oracle-database-xe-18c-1.0-1.x86_64.rpm
-#     Download Oracle Database Express Edition (XE) Release 18.4.0.0.0 (18c) for Linux x64
-#     from https://www.oracle.com/technetwork/database/database-technologies/express-edition/downloads/index.html
-#
-# HOW TO BUILD THIS IMAGE
-# -----------------------
-# Put the downloaded file in the same directory as this Dockerfile
-# Run: 
-#      $ docker build -t oracle/database:18.4.0-xe -f Dockerfile.xe .
-#
-#
-# Pull base image
-# ---------------
 FROM oraclelinux:7-slim as base
 
-# Maintainer
-# ----------
 LABEL maintainer="dirk.nachbar@trivadis.com"
 
-# Environment variables required for this build (do NOT change)
-# -------------------------------------------------------------
 ENV ORACLE_BASE=/opt/oracle \
     ORACLE_HOME=/opt/oracle/product/18c/dbhomeXE \
     ORACLE_SID=XE \
@@ -41,28 +14,13 @@ ENV ORACLE_BASE=/opt/oracle \
     ORACLE_DOCKER_INSTALL="true" \
     NLS_LANG=AMERICAN_AMERICA.AL32UTF8
 
-# Use second ENV so that variable get substituted
 ENV PATH=$ORACLE_HOME/bin:$PATH
 
-# Copy binaries to the Image
-# -------------
-COPY $RUN_FILE $PWD_FILE $CHECK_DB_FILE $INSTALL_DIR/
-COPY $CONF_FILE $INSTALL_DIR/
+COPY $RUN_FILE $PWD_FILE $CHECK_DB_FILE $INSTALL_FILE_1 $CONF_FILE $INSTALL_DIR/
 
 RUN cd $INSTALL_DIR && \
     yum -y install unzip.x86_64 oracle-database-preinstall-18c file openssl && \
     rm -rf /var/cache/yum
-
-#############################################
-# -------------------------------------------
-# Start new stage for installing the database
-# -------------------------------------------
-#############################################
-
-FROM base AS builder
-
-# Copy DB install file
-COPY $INSTALL_FILE_1 $INSTALL_DIR/
 
 # Install DB software rpm
 RUN cd $INSTALL_DIR && \
@@ -113,18 +71,6 @@ RUN cd $INSTALL_DIR && \
     strip --remove-section=.comment $ORACLE_HOME/bin/rman && \
     strip --remove-section=.comment $ORACLE_HOME/bin/tnslsnr
 
-#############################################
-# -------------------------------------------
-# Start new layer for database runtime
-# -------------------------------------------
-#############################################
-
-FROM base
-
-COPY --chown=oracle:oinstall --from=builder $ORACLE_BASE $ORACLE_BASE
-COPY --chown=oracle:oinstall --from=builder $INSTALL_DIR $INSTALL_DIR
-COPY --from=builder /etc/init.d/oracle-xe-18c /etc/init.d/oracle-xe-18c
-
 RUN $ORACLE_BASE/oraInventory/orainstRoot.sh && \
     $ORACLE_HOME/root.sh && \
     mkdir -p $ORACLE_BASE/scripts/setup && \
@@ -142,7 +88,6 @@ RUN $ORACLE_BASE/oraInventory/orainstRoot.sh && \
     target_txt=$(cat /etc/security/limits.d/oracle-database-preinstall-18c.conf | grep -e 'oracle *hard *memlock*') && \
     sed -i "/^$target_txt/ c#$target_txt" /etc/security/limits.d/oracle-database-preinstall-18c.conf && \
     chmod ug+x $ORACLE_BASE/*.sh
-    
 
 WORKDIR /home/oracle
 
