@@ -5,96 +5,58 @@ ENV ORACLE_BASE=/u01/app/oracle \
 
 ENV ORACLE_HOME=${ORACLE_BASE}/product/${ORACLE_VERSION}/xe \
     ORACLE_SID=XE \
-    INSTALL_FILE_1=oracle-xe-11.2.0-1.0.x86_64.rpm \
+    INSTALL_FILE_1=oracle-xe-11.2.0-1.0.x86_64.rpm.zip \
     INSTALL_DIR=$HOME/install \
     CONFIG_RSP=xe.rsp \
     RUN_FILE=runOracle.sh \
     PWD_FILE=setPassword.sh \
-    CHECK_DB_FILE=checkDBStatus.sh
+    CHECK_DB_FILE=checkDBStatus.sh \
+    ENTRYPOINT=entrypoint.sh
 
 ENV PATH=$ORACLE_HOME/bin:$PATH
 
-COPY $RUN_FILE $PWD_FILE $CHECK_DB_FILE $CONF_FILE $INSTALL_DIR/
+RUN yum -y install file && \
+    mkdir -p ${INSTALL_DIR} && \
+    curl -o $INSTALL_DIR/$INSTALL_FILE_1 https://s3.amazonaws.com/software.redpillanalytics.io/oracle/xe/${ORACLE_VERSION}/${INSTALL_FILE_1}
+
+COPY $RUN_FILE $PWD_FILE $CHECK_DB_FILE $CONF_FILE $ENTRYPOINT $INSTALL_DIR/
 
 WORKDIR $INSTALL_DIR
 
-RUN yum -y install unzip.x86_64 oracle-database-preinstall-18c file openssl && \
-    curl -o $INSTALL_DIR/$INSTALL_FILE_1 https://s3.amazonaws.com/software.redpillanalytics.io/oracle/xe/${ORACLE_VERSION}/${INSTALL_FILE_1}
-
-# Install DB software rpm
-RUN yum -y install $INSTALL_FILE_1 && \
+RUN yum -y install unzip libaio bc initscripts net-tools openssl compat-libstdc++-33 && \
     rm -rf /var/cache/yum && \
-    rm -f $INSTALL_FILE_1 && \
-    rm -rf $ORACLE_HOME/demo && \
-    rm -rf $ORACLE_HOME/dmu && \
-    rm -rf $ORACLE_HOME/javavm && \
-    rm -rf $ORACLE_HOME/md && \
-    rm -rf $ORACLE_HOME/nls/demo && \
-    rm -rf $ORACLE_HOME/odbc && \
-    rm -rf $ORACLE_HOME/rdbms/demo && \
-    rm -rf $ORACLE_HOME/R && \
-    rm -rf $ORACLE_HOME/instantclient && \
-    rm -rf $ORACLE_HOME/inventory && \
-    rm -rf $ORACLE_HOME/deinstall && \
-    rm -r  $ORACLE_HOME/lib/ra_aix_ppc64.zip && \
-    rm -r  $ORACLE_HOME/lib/ra_hpux_ia64.zip && \
-    rm -r  $ORACLE_HOME/lib/ra_solaris*.zip && \
-    rm -f  $ORACLE_HOME/lib/ra_windows64.zip && \
-    rm -f  $ORACLE_HOME/lib/ra_zlinux64.zip && \
-    rm -rf $ORACLE_HOME/crs && \
-    rm -f  $ORACLE_HOME/bin/asmcmd && \
-    rm -f  $ORACLE_HOME/bin/asmcmdcore && \
-    rm -f  $ORACLE_HOME/bin/bdschecksw && \
-    rm -f  £ORACLE_HOME/bin/dbv && \
-    rm -f  $ORACLE_HOME/bin/ldap* && \
-    rm -f  $ORACLE_HOME/bin/dbfs_client && \
-    rm -f  $ORACLE_HOME/bin/afdboot && \
-    rm -f  $ORACLE_HOME/bin/exp && \
-    rm -f  $ORACLE_HOME/bin/imp && \
-    rm -f  $ORACLE_HOME/bin/*.exe && \
-    rm -f  $ORACLE_HOME/bin/lcsscan && \
-    rm -f  $ORACLE_HOME/bin/dgmgrl && \
-    rm -f  $ORACLE_HOME/bin/nid && \
-    rm -f  $ORACLE_HOME/bin/orion && \
-    rm -f  $ORACLE_HOME/bin/procob && \
-    rm -f  $ORACLE_HOME/bin/setasmgid && \
-    rm -f  $ORACLE_HOME/bin/wrap && \
-    rm -f  $ORACLE_HOME/bin/*0 && \
-    rm -f  $ORACLE_HOME/bin/tnsping && \
-    rm -f  $ORACLE_HOME/bin/tkprof && \
-    rm -f  $ORACLE_HOME/bin/srvctl && \
-    rm -f  $ORCALE_HOME/bin/wrc && \
-    rm -rf $ORACLE_HOME/sdk && \
-    strip --remove-section=.comment $ORACLE_HOME/bin/oracle && \
-    strip --remove-section=.comment $ORACLE_HOME/bin/rman && \
-    strip --remove-section=.comment $ORACLE_HOME/bin/tnslsnr
-
-RUN $ORACLE_BASE/oraInventory/orainstRoot.sh && \
-    $ORACLE_HOME/root.sh && \
+    cd $INSTALL_DIR && \
+    unzip $INSTALL_FILE_1 && \
+    rm $INSTALL_FILE_1 &&    \
+    cat() { declare -A PROC=(["/proc/sys/kernel/shmmax"]=4294967295 ["/proc/sys/kernel/shmmni"]=4096 ["/proc/sys/kernel/shmall"]=2097152 ["/proc/sys/fs/file-max"]=6815744); [[ ${PROC[$1]} == "" ]] && /usr/bin/cat $* || echo ${PROC[$1]}; } && \
+    free() { echo "Swap: 2048 0 2048"; } && \
+    export -f cat free && \
+    rpm -i Disk1/*.rpm &&    \
+    unset -f cat free && \
     mkdir -p $ORACLE_BASE/scripts/setup && \
     mkdir $ORACLE_BASE/scripts/startup && \
     ln -s $ORACLE_BASE/scripts /docker-entrypoint-initdb.d && \
-    mkdir -p $ORACLE_BASE/oradata $ORACLE_BASE/diag $ORACLE_BASE/fast_recovery_area $ORACLE_BASE/tools /home/oracle && \
-    chown -R oracle:oinstall $ORACLE_BASE/oradata $ORACLE_BASE/diag $ORACLE_BASE/fast_recovery_area $ORACLE_BASE/tools /home/oracle && \
+    mkdir $ORACLE_BASE/oradata && \
+    chown -R oracle:dba $ORACLE_BASE && \
+    mv $INSTALL_DIR/$CONFIG_RSP $ORACLE_BASE/ && \
     mv $INSTALL_DIR/$RUN_FILE $ORACLE_BASE/ && \
     mv $INSTALL_DIR/$PWD_FILE $ORACLE_BASE/ && \
     mv $INSTALL_DIR/$CHECK_DB_FILE $ORACLE_BASE/ && \
-    mv $INSTALL_DIR/$CONF_FILE /etc/sysconfig/ && \
+    mv $INSTALL_DIR/$ENTRYPOINT $ORACLE_BASE/ && \
     ln -s $ORACLE_BASE/$PWD_FILE / && \
+    cd $HOME && \
     rm -rf $INSTALL_DIR && \
-    target_txt=$(cat /etc/security/limits.d/oracle-database-preinstall-18c.conf | grep -e 'oracle *hard *memlock*') && \
-    sed -i "/^$target_txt/ c#$target_txt" /etc/security/limits.d/oracle-database-preinstall-18c.conf && \
     chmod ug+x $ORACLE_BASE/*.sh
 
-WORKDIR /home/oracle
+WORKDIR ${ORACLE_BASE}
 
-# Adding VOLUMES for oradata and diag directory
+ENV ORACLE_PWD=Admin123
+
+RUN $ORACLE_BASE/$RUN_FILE
+
 VOLUME ["$ORACLE_BASE/oradata"]
-VOLUME ["$ORACLE_BASE/diag"]
-VOLUME ["$ORACLE_BASE/fast_recovery_area"]
-VOLUME ["$ORACLE_BASE/tools"]
-EXPOSE 1521 
+EXPOSE 1521 8080
 HEALTHCHECK --interval=1m --start-period=5m \
    CMD "$ORACLE_BASE/$CHECK_DB_FILE" >/dev/null || exit 1
 
-CMD exec $ORACLE_BASE/$RUN_FILE
+CMD exec $ORACLE_BASE/$ENTRYPOINT
