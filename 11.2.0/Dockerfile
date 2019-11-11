@@ -1,16 +1,16 @@
 FROM oraclelinux:7-slim as base
 
-ENV ORACLE_BASE=/opt/oracle \
-    ORACLE_HOME=/opt/oracle/product/18c/dbhomeXE \
+ENV ORACLE_BASE=/u01/app/oracle \
+    ORACLE_VERSION=11.2.0
+
+ENV ORACLE_HOME=${ORACLE_BASE}/product/${ORACLE_VERSION}/xe \
     ORACLE_SID=XE \
-    INSTALL_FILE_1=oracle-database-xe-18c-1.0-1.x86_64.rpm \
+    INSTALL_FILE_1=oracle-xe-11.2.0-1.0.x86_64.rpm \
+    INSTALL_DIR=$HOME/install \
+    CONFIG_RSP=xe.rsp \
     RUN_FILE=runOracle.sh \
     PWD_FILE=setPassword.sh \
-    CONF_FILE=oracle-xe-18c.conf \
-    CHECK_DB_FILE=checkDBStatus.sh \
-    INSTALL_DIR=$HOME/install \
-    ORACLE_DOCKER_INSTALL=true \
-    NLS_LANG=AMERICAN_AMERICA.AL32UTF8
+    CHECK_DB_FILE=checkDBStatus.sh
 
 ENV PATH=$ORACLE_HOME/bin:$PATH
 
@@ -19,7 +19,7 @@ COPY $RUN_FILE $PWD_FILE $CHECK_DB_FILE $CONF_FILE $INSTALL_DIR/
 WORKDIR $INSTALL_DIR
 
 RUN yum -y install unzip.x86_64 oracle-database-preinstall-18c file openssl && \
-    curl -o $INSTALL_DIR/$INSTALL_FILE_1 https://s3.amazonaws.com/software.redpillanalytics.io/oracle/xe/18.4.0.0.0/${INSTALL_FILE_1}
+    curl -o $INSTALL_DIR/$INSTALL_FILE_1 https://s3.amazonaws.com/software.redpillanalytics.io/oracle/xe/${ORACLE_VERSION}/${INSTALL_FILE_1}
 
 # Install DB software rpm
 RUN yum -y install $INSTALL_FILE_1 && \
