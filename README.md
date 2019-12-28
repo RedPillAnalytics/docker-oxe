@@ -1,48 +1,6 @@
 Optimized Oracle XE 18c on Docker
 =====
-Changes: 3rd May 2019: Docker image more optimized from 5.41 GB to 4.02 GB
-
 Build a Docker image containing Oracle XE 18c with optimized size (4.02 GB instead of 8.7 GB) including Archivelog Mode and Flashback
-
-
-## Oracle XE 18c Software
-[Download Oracle XE 18c](https://www.oracle.com/technetwork/database/database-technologies/express-edition/downloads/index.html) `.rpm` file and drop it inside folder `18.4.0`.
-
-## Prerequirements
-You will need to complete following prerequirements
-```
-$ groupadd -g 54321 oinstall
-$ useradd -d /home/oracle -m -g oinstall [-G docker] -u 54321 oracle
-# Depending on your disk layout you will need to create 4 directories
-# e.g. you have one mount point called u01, create the following 4 directories below and switch the ownership to the oracle user
-$ mkdir -p /u01/diag
-$ mkdir -p /u01/oradata
-$ mkdir -p /u01/fast_recovery_area
-$ mkdir -p /u01/tools
-$ chown -R oracle:oinstall /u01/diag
-$ chown -R oracle:oinstall /u01/oradata
-$ chown -R oracle:oinstall /u01/fast_recovery_area
-$ chown -R oracle:oinstall /u01/tools
-```
-## Build it
-To build the images just run below command:
-```
-$ ./buildDockerImage.sh -v 18.4.0 -x
-. . .
-Successfully built ac71812fa9d3
-Successfully tagged oracle/database:18.4.0-xe
-
-
-  Oracle Database Docker Image for 'xe' version 18.4.0 is ready to be extended:
-
-    --> oracle/database:18.4.0-xe
-
-  Build completed in 697 seconds.
-
-$ docker images
-REPOSITORY           TAG                 IMAGE ID            CREATED             SIZE
-oracle/database      18.4.0-xe           2018ad58d2f3        16 hours ago        4.02GB
-```
 
 ## Run the Container
 Just run following command, which will create your Oracle XE 18c Container, mount the internal directories `/opt/oracle/oradata`, `/opt/oracle/diag`, `/opt/oracle/fast_recovery_area` and `/opt/oracle/tools` to your prior created directories on your Docker host and enables a port forwarding of the Listener Port 1521 to 1521
