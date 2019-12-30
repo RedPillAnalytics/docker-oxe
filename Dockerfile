@@ -19,8 +19,7 @@ RUN yum -y install unzip.x86_64 oracle-database-preinstall-18c file openssl && \
     curl -o $INSTALL_FILE_1 https://s3.amazonaws.com/software.redpillanalytics.io/oracle/xe/18.4.0/${INSTALL_FILE_1}
 
 # Install DB software rpm
-RUN mkdir ${ORACLE_BASE} && \
-    chown oracle:oinstall ${ORACLE_BASE} && \
+RUN chown oracle:oinstall ${ORACLE_BASE} && \
     yum -y install $INSTALL_FILE_1 && \
     rm -rf /var/cache/yum && \
     rm -f $INSTALL_FILE_1 && \
