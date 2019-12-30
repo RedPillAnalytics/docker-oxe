@@ -18,7 +18,6 @@ RUN yum -y install unzip.x86_64 oracle-database-preinstall-18c file openssl
 RUN curl -o $INSTALL_FILE_1 https://s3.amazonaws.com/software.redpillanalytics.io/oracle/xe/18.4.0/${INSTALL_FILE_1}
 
 # Install DB software rpm
-RUN mkdir ${ORACLE_BASE}
 RUN mkdir -p ${ORACLE_BASE}
 RUN chown oracle:oinstall ${ORACLE_BASE}
 RUN yum -y install $INSTALL_FILE_1
@@ -71,7 +70,7 @@ RUN strip --remove-section=.comment $ORACLE_HOME/bin/tnslsnr
 RUN $ORACLE_BASE/oraInventory/orainstRoot.sh
 RUN $ORACLE_HOME/root.sh
 RUN mkdir -p $ORACLE_BASE/scripts/setup
-RUN mkdir $ORACLE_BASE/scripts/startup
+RUN mkdir -p $ORACLE_BASE/scripts/startup
 RUN ln -s $ORACLE_BASE/scripts /docker-entrypoint-initdb.d
 RUN mkdir -p $ORACLE_BASE/oradata $ORACLE_BASE/diag $ORACLE_BASE/fast_recovery_area $ORACLE_BASE/tools /home/oracle
 RUN chown -R oracle:oinstall $ORACLE_BASE /home/oracle
