@@ -19,7 +19,7 @@ RUN curl -o $INSTALL_FILE_1 https://s3.amazonaws.com/software.redpillanalytics.i
 
 # Install DB software rpm
 RUN mkdir ${ORACLE_BASE}
-#RUN mkdir ${ORACLE_BASE}
+RUN mkdir -p ${ORACLE_BASE}
 RUN chown oracle:oinstall ${ORACLE_BASE}
 RUN yum -y install $INSTALL_FILE_1
 RUN rm -rf /var/cache/yum
