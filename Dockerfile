@@ -1,12 +1,12 @@
 FROM oraclelinux:7-slim as base
 
 ENV ORACLE_BASE=/opt/oracle \
-    ORACLE_HOME=/opt/oracle/product/18c/dbhomeXE \
+    ORACLE_HOME=/opt/oracle/product/19c/dbhomeXE \
     ORACLE_SID=XE \
-    INSTALL_FILE_1=oracle-database-xe-18c-1.0-1.x86_64.rpm \
+    INSTALL_FILE_1=oracle-database-ee-19c-1.0-1.x86_64.rpm \
     RUN_DB=runOracle.sh \
     PWD_FILE=setPassword.sh \
-    CONF_FILE=oracle-xe-18c.conf \
+    CONF_FILE=oracle-xe-19c.conf \
     CHECK_DB_FILE=checkDBStatus.sh \
     ORACLE_DOCKER_INSTALL=true \
     NLS_LANG=AMERICAN_AMERICA.AL32UTF8 \
@@ -15,8 +15,8 @@ ENV ORACLE_BASE=/opt/oracle \
 
 COPY $RUN_DB $PWD_FILE $CHECK_DB_FILE $CONF_FILE ./
 
-RUN yum -y install unzip.x86_64 oracle-database-preinstall-18c file openssl \
-    && curl -o $INSTALL_FILE_1 https://s3.amazonaws.com/software.redpillanalytics.io/oracle/xe/18.4.0/${INSTALL_FILE_1} \
+RUN yum -y install unzip.x86_64 oracle-database-preinstall-19c file openssl \
+    && curl -o $INSTALL_FILE_1 https://s3.amazonaws.com/software.redpillanalytics.io/oracle/xe/${INSTALL_FILE_1} \
     && mkdir -p ${ORACLE_BASE} \
     && chown oracle:oinstall ${ORACLE_BASE} \
     && yum -y install $INSTALL_FILE_1 \
@@ -77,8 +77,8 @@ RUN yum -y install unzip.x86_64 oracle-database-preinstall-18c file openssl \
     && mv $CHECK_DB_FILE $ORACLE_BASE/ \
     && mv $CONF_FILE /etc/sysconfig/ \
     && ln -s $ORACLE_BASE/$PWD_FILE / \
-    && target_txt=$(cat /etc/security/limits.d/oracle-database-preinstall-18c.conf | grep -e 'oracle *hard *memlock*') \
-    && sed -i "/^$target_txt/ c#$target_txt" /etc/security/limits.d/oracle-database-preinstall-18c.conf \
+    && target_txt=$(cat /etc/security/limits.d/oracle-database-preinstall-19c.conf | grep -e 'oracle *hard *memlock*') \
+    && sed -i "/^$target_txt/ c#$target_txt" /etc/security/limits.d/oracle-database-preinstall-19c.conf \
     && chmod ug+x $ORACLE_BASE/*.sh
 
 # Adding VOLUMES for oradata and diag directory

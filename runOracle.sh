@@ -75,13 +75,13 @@ function symLinkFiles {
 function _term() {
    echo "Stopping container."
    echo "SIGTERM received, shutting down database!"
-  /etc/init.d/oracle-xe-18c stop
+  /etc/init.d/oracle-xe-19c stop
 }
 
 ########### SIGKILL handler ############
 function _kill() {
    echo "SIGKILL received, shutting down database!"
-   /etc/init.d/oracle-xe-18c stop
+   /etc/init.d/oracle-xe-19c stop
 }
 
 ############# Create DB ################
@@ -94,7 +94,7 @@ function createDB {
    export ORACLE_CHARACTERSET=${ORACLE_CHARACTERSET:-AL32UTF8}
    sed -i -e "s|###ORACLE_CHARACTERSET###|$ORACLE_CHARACTERSET|g" /etc/sysconfig/$CONF_FILE
 
-   (echo "$ORACLE_PWD"; echo "$ORACLE_PWD";) | /etc/init.d/oracle-xe-18c configure
+   (echo "$ORACLE_PWD"; echo "$ORACLE_PWD";) | /etc/init.d/oracle-xe-19c configure
 
   # Move database operational files to oradata
   moveFiles;
@@ -117,7 +117,7 @@ if [ -d $ORACLE_BASE/oradata/$ORACLE_SID ]; then
    fi;
 fi;
 
-/etc/init.d/oracle-xe-18c start | grep -qc "Oracle Database is not configured"
+/etc/init.d/oracle-xe-19c start | grep -qc "Oracle Database is not configured"
 if [ "$?" == "0" ]; then
    # Create database
    createDB;
