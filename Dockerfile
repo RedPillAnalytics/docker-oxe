@@ -33,9 +33,9 @@ RUN yum -y install unzip.x86_64 oracle-database-preinstall-19c file openssl \
     && rm -rf $ORACLE_HOME/instantclient \
     && rm -rf $ORACLE_HOME/inventory \
     && rm -rf $ORACLE_HOME/deinstall \
-    && rm -r  $ORACLE_HOME/lib/ra_aix_ppc64.zip \
-    && rm -r  $ORACLE_HOME/lib/ra_hpux_ia64.zip \
-    && rm -r  $ORACLE_HOME/lib/ra_solaris*.zip \
+    #&& rm -r  $ORACLE_HOME/lib/ra_aix_ppc64.zip \
+    #&& rm -r  $ORACLE_HOME/lib/ra_hpux_ia64.zip \
+    #&& rm -r  $ORACLE_HOME/lib/ra_solaris*.zip \
     && rm -f  $ORACLE_HOME/lib/ra_windows64.zip \
     && rm -f  $ORACLE_HOME/lib/ra_zlinux64.zip \
     && rm -rf $ORACLE_HOME/crs \
@@ -62,11 +62,11 @@ RUN yum -y install unzip.x86_64 oracle-database-preinstall-19c file openssl \
     && rm -f  $ORACLE_HOME/bin/srvctl \
     && rm -f  $ORCALE_HOME/bin/wrc \
     && rm -rf $ORACLE_HOME/sdk \
-    && strip --remove-section=.comment $ORACLE_HOME/bin/oracle \
-    && strip --remove-section=.comment $ORACLE_HOME/bin/rman \
-    && strip --remove-section=.comment $ORACLE_HOME/bin/tnslsnr \
+    #&& strip --remove-section=.comment $ORACLE_HOME/bin/oracle \
+    #&& strip --remove-section=.comment $ORACLE_HOME/bin/rman \
+    #&& strip --remove-section=.comment $ORACLE_HOME/bin/tnslsnr \
     && $ORACLE_BASE/oraInventory/orainstRoot.sh \
-    && $ORACLE_HOME/root.sh \
+    #&& $ORACLE_HOME/root.sh \
     && mkdir -p $ORACLE_BASE/scripts/setup \
     && mkdir -p $ORACLE_BASE/scripts/startup \
     && ln -s $ORACLE_BASE/scripts /docker-entrypoint-initdb.d \
