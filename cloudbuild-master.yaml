@@ -1,5 +1,5 @@
 steps:
-- name: 'gcr.io/kaniko-project/executor:latest'
+- name: gcr.io/kaniko-project/executor:v0.16.0
   args:
   - --destination=gcr.io/$PROJECT_ID/oxe:latest
   - --cache=true
@@ -7,6 +7,6 @@ steps:
   - --context=./
   - --single-snapshot
   id: kaniko-build
-- name: 'gcr.io/$PROJECT_ID/oxe:latest'
+- name: gcr.io/$PROJECT_ID/oxe:latest
   id: kaniko-test
 timeout: 3600s
