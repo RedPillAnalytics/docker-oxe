@@ -10,13 +10,14 @@ ENV ORACLE_BASE=/opt/oracle \
     CHECK_DB_FILE=checkDBStatus.sh \
     ORACLE_DOCKER_INSTALL=true \
     NLS_LANG=AMERICAN_AMERICA.AL32UTF8 \
-    PATH=$ORACLE_HOME/bin:$PATH \
     ORACLE_PWD=Admin123
+
+ENV PATH=$ORACLE_HOME/bin:$PATH
 
 COPY $RUN_DB $PWD_FILE $CHECK_DB_FILE $CONF_FILE ./
 
 RUN yum -y install unzip.x86_64 oracle-database-preinstall-18c file openssl \
-    && curl -o $INSTALL_FILE_1 https://s3.amazonaws.com/software.redpillanalytics.io/oracle/xe/18.4.0/${INSTALL_FILE_1} \
+    && curl -o ${INSTALL_FILE_1} https://s3.amazonaws.com/software.redpillanalytics.io/oracle/xe/${INSTALL_FILE_1} \
     && mkdir -p ${ORACLE_BASE} \
     && chown oracle:oinstall ${ORACLE_BASE} \
     && yum -y install $INSTALL_FILE_1 \
